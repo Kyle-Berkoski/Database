@@ -185,17 +185,18 @@ INSERT INTO Orders( ordno, mon, cid, aid, pid, qty, dollars )
 --Lab 5
 
 --Question 1
-SELECT city FROM Agents
-INNER JOIN Orders
-ON Agents.aid=Orders.aid
-WHERE cid = 'c001';
-
+SELECT Agents.city FROM Agents
+JOIN Orders
+	ON Agents.aid=Orders.aid JOIN Customers
+	ON Orders.cid=Customers.cid
+		WHERE Customers.name = 'Tiptop';
+	
 --Question 2
-SELECT Products.pid FROM Products
-FULL OUTER JOIN Orders
+SELECT Products.pid FROM Products 
+JOIN Orders 
 	ON Products.pid=Orders.pid JOIN Customers
 	ON Orders.cid=Customers.cid
-WHERE Customers.city = 'Kyoto';
+		WHERE Customers.city = 'Kyoto';
 
 --Question 3
 SELECT name FROM Customers
@@ -209,14 +210,14 @@ FULL OUTER JOIN Orders
 WHERE Orders.cid IS null;
 
 --Question 5
-SELECT * FROM Customers
+SELECT Customers.name, Agents.name FROM Customers
 JOIN Orders
 	ON Customers.cid=Orders.cid JOIN Agents
 	ON Orders.aid=Agents.aid
-WHERE Customers.city=Agents.city;
+		WHERE Customers.city=Agents.city;
 
 --Question 6
-SELECT * FROM Customers
+SELECT Customers.name, Agents.name, Customers.city FROM Customers
 JOIN Agents
 	ON Customers.city=Agents.city
 WHERE Customers.city=Agents.city;

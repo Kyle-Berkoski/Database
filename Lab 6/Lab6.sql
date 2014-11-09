@@ -181,62 +181,53 @@ INSERT INTO Orders( ordno, mon, cid, aid, pid, qty, dollars )
 INSERT INTO Orders( ordno, mon, cid, aid, pid, qty, dollars )
   VALUES(1026, 'may', 'c002', 'a05', 'p03',  800, 740.00);
 
-
--- SQL statements for displaying example data into the CAP2 database
--- Connect to your Postgres server and set the active database to CAP2.  Then . . .
+--Lab 6
 
 --Question 1
-SELECT city FROM Agents
-WHERE aid IN
-	(SELECT aid FROM Orders
-	WHERE cid IN 
-		(SELECT cid FROM Customers
-		WHERE name = 'Tiptop'));
+SELECT name, city FROM Customers
+WHERE city IN(
+Select city FROM 
+	(SELECT COUNT(*) AS cnt, city
+	FROM Products
+	GROUP BY city
+	ORDER BY cnt DESC
+	LIMIT 1) AS most_cities);
 
 --Question 2
-SELECT pid FROM Products
-WHERE pid IN
-	(SELECT pid FROM Orders
-	WHERE aid IN
-		(SELECT aid FROM Agents
-		WHERE aid IN 
-			(SELECT aid FROM Orders 
-			WHERE cid IN 
-				(SELECT cid FROM Customers
-				WHERE city = 'Kyoto'))));
-	
+SELECT name, city FROM Customers
+WHERE city IN(
+Select city FROM 
+	(SELECT COUNT(*) AS cnt, city
+	FROM Products
+	GROUP BY city
+	ORDER BY cnt DESC) AS most_cities); 
 
 --Question 3
-SELECT name, cid FROM Customers
-WHERE cid NOT IN
-	(SELECT cid FROM Orders
-	WHERE aid = 'a04');
+SELECT name FROM Products
+WHERE priceUSD > (SELECT AVG(priceUSD) FROM Products);
 
 --Question 4
-SELECT cid, name FROM Customers
-WHERE cid IN
-	(SELECT cid FROM Orders
-	WHERE pid = 'p01' AND cid IN
-		(SELECT cid FROM Orders 
-		WHERE pid = 'p07'));
-
+SELECT Customers.name, Orders.pid, Orders.dollars FROM Customers
+JOIN Orders
+	ON Customers.cid=Orders.cid;
 
 --Question 5
-SELECT pid FROM Products
-WHERE pid IN 
-	(SELECT pid FROM Orders
-	WHERE cid IN
-		(SELECT cid FROM Orders
-		WHERE aid = 'a04'));
+SELECT COALESCE(Customers.name), Orders.dollars FROM Customers
+JOIN Orders
+	ON Customers.cid=Orders.cid
+ORDER BY dollars ASC;
 
- --Question 6
- SELECT name, discount FROM Customers
- WHERE cid IN
-	(SELECT cid FROM Orders
-	WHERE aid IN
-		(SELECT aid FROM Agents
-		WHERE city = 'Dallas' OR city = 'Newark')
-	);
+--Question 6
+SELECT Customers.name, Products.name, Agents.name FROM Customers
+JOIN Orders
+	ON Customers.cid=Orders.cid JOIN Agents
+	ON Orders.aid=Agents.aid JOIN Products
+	ON Orders.pid=Products.pid
+WHERE Agents.city = 'New York';
 
-/*--Question 7
-SELECT * FROM Customers*/
+--Question 7
+--This question is very ambiguous, as the discount for customers is not specific; is it dollars? percent? Also, what does percent mean in Agents? Commision? 
+SELECT * FROM Orders
+JOIN Products
+	ON Orders.pid=Products.pid
+	WHERE Products.PriceUSD * Orders.qty != Orders.dollars; 
